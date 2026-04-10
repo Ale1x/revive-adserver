@@ -14,7 +14,8 @@ WORKDIR /tmp
 RUN wget -qO- "https://github.com/revive-adserver/revive-adserver/archive/refs/tags/v${REVIVE_VERSION}.tar.gz" | tar xz --strip 1
 
 # Install Composer and fetch PHP dependencies
-RUN wget -qO /usr/local/bin/composer https://getcomposer.org/composer-stable.phar && \
+RUN ln -sf /usr/bin/php81 /usr/bin/php && \
+    wget -qO /usr/local/bin/composer https://getcomposer.org/composer-stable.phar && \
     chmod +x /usr/local/bin/composer && \
     composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
