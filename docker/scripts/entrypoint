@@ -23,6 +23,11 @@ mkdir -p /var/www/html/var/plugins
 mkdir -p /var/www/html/www/images
 mkdir -p /var/www/html/www/delivery
 
+# Create UPGRADE sentinel file if missing (required by the installer to avoid redirect loop)
+if [ ! -f /var/www/html/var/UPGRADE ]; then
+    touch /var/www/html/var/UPGRADE
+fi
+
 # Set proper ownership
 chown -R nginx:www-data /var/www/html/var
 chown -R nginx:www-data /var/www/html/www/images
