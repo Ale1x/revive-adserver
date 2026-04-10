@@ -20,11 +20,13 @@ chmod -R 777 /var/www/html/www/delivery
 # Create required directories if they don't exist
 mkdir -p /var/www/html/var/cache
 mkdir -p /var/www/html/var/plugins
+mkdir -p /var/www/html/var/templates_compiled
 mkdir -p /var/www/html/www/images
 mkdir -p /var/www/html/www/delivery
 
-# Create UPGRADE sentinel file if missing (required by the installer to avoid redirect loop)
-if [ ! -f /var/www/html/var/UPGRADE ]; then
+# Create UPGRADE sentinel file if missing and not yet installed
+# (required by the installer to avoid redirect loop between install.php and index.php)
+if [ ! -f /var/www/html/var/UPGRADE ] && [ ! -f /var/www/html/var/INSTALLED ]; then
     touch /var/www/html/var/UPGRADE
 fi
 
