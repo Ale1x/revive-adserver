@@ -2,12 +2,21 @@
 # Stage 1: Download and prepare Revive Adserver
 FROM alpine:3.19 AS downloader
 
-ARG REVIVE_VERSION=5.5.2
+ARG REVIVE_VERSION=6.0.6
 
-RUN apk add --no-cache wget tar
+RUN apk add --no-cache \
+    wget tar unzip \
+    php81 php81-cli php81-curl php81-json php81-mbstring \
+    php81-openssl php81-phar php81-tokenizer php81-xml php81-xmlwriter \
+    php81-dom php81-iconv php81-zip
 
 WORKDIR /tmp
 RUN wget -qO- "https://github.com/revive-adserver/revive-adserver/archive/refs/tags/v${REVIVE_VERSION}.tar.gz" | tar xz --strip 1
+
+# Install Composer and fetch PHP dependencies
+RUN wget -qO /usr/local/bin/composer https://getcomposer.org/composer-stable.phar && \
+    chmod +x /usr/local/bin/composer && \
+    composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 # Stage 2: Production image
 FROM alpine:3.19
