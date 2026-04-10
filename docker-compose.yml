@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
       args:
-        - REVIVE_VERSION=5.5.2
+        - REVIVE_VERSION=6.0.6
     container_name: revive-app
     restart: unless-stopped
     logging:
