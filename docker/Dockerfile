@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for Revive Adserver v5.5.2
+# Multi-stage Dockerfile for Revive Adserver
 # Stage 1: Download and prepare Revive Adserver
 FROM alpine:3.19 AS downloader
 
@@ -17,7 +17,7 @@ ARG APP_ENV=production
 ARG DOCKERIZE_VERSION=v0.7.0
 
 LABEL maintainer="Fábio Assunção fabio@codions.com"
-LABEL description="Revive Adserver v5.5.2 with Nginx, PHP 8.1-FPM on Alpine Linux"
+LABEL description="Revive Adserver with Nginx, PHP 8.1-FPM on Alpine Linux"
 
 
 # Install system dependencies
@@ -33,13 +33,16 @@ RUN apk add --no-cache \
     php81-gd \
     php81-iconv \
     php81-json \
+    php81-intl \
     php81-mbstring \
     php81-mysqli \
     php81-opcache \
     php81-openssl \
     php81-pdo \
     php81-pdo_mysql \
+    php81-pdo_pgsql \
     php81-pecl-redis \
+    php81-pgsql \
     php81-session \
     php81-simplexml \
     php81-tokenizer \
