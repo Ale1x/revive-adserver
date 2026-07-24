@@ -2,7 +2,7 @@
 # Stage 1: Download and prepare Revive Adserver
 FROM alpine:3.19 AS downloader
 
-ARG REVIVE_VERSION=6.0.6
+ARG REVIVE_VERSION=6.0.8
 
 RUN apk add --no-cache \
     wget tar unzip \
