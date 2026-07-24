@@ -21,6 +21,7 @@ RUN ln -sf /usr/bin/php81 /usr/bin/php && \
 
 # Unpack default plugin packages into plugins directory
 RUN mkdir -p plugins && \
+    for d in plugins_repo/*/plugins; do [ -d "$d" ] && cp -rf "$d"/* plugins/; done && \
     for f in etc/plugins/*.zip; do [ -f "$f" ] && unzip -q -o "$f" -d plugins/; done
 
 # Stage 2: Production image
