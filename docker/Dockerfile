@@ -19,6 +19,10 @@ RUN ln -sf /usr/bin/php81 /usr/bin/php && \
     chmod +x /usr/local/bin/composer && \
     composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
+# Unpack default plugin packages into plugins directory
+RUN mkdir -p plugins && \
+    for f in etc/plugins/*.zip; do [ -f "$f" ] && unzip -q -o "$f" -d plugins/; done
+
 # Stage 2: Production image
 FROM alpine:3.19
 
@@ -108,6 +112,7 @@ RUN mkdir -p /var/cache/nginx \
     /run/php-fpm81 \
     /var/www/html/var/cache \
     /var/www/html/var/plugins \
+    /var/www/html/plugins \
     /var/www/html/www/images \
     /var/www/html/www/delivery
 
@@ -115,6 +120,7 @@ RUN mkdir -p /var/cache/nginx \
 RUN chown -R nginx:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 777 /var/www/html/var \
+    && chmod -R 777 /var/www/html/plugins \
     && chmod -R 777 /var/www/html/www/images \
     && chmod -R 777 /var/www/html/www/delivery \
     && chown -R nginx:www-data /var/cache/nginx \
