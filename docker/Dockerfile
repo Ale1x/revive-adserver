@@ -19,10 +19,11 @@ RUN ln -sf /usr/bin/php81 /usr/bin/php && \
     chmod +x /usr/local/bin/composer && \
     composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# Unpack default plugin packages into plugins directory
+# Unpack default plugin packages into plugins directory and patch Invocation.php for PHP 8.1
 RUN mkdir -p plugins && \
     for d in plugins_repo/*/plugins; do [ -d "$d" ] && cp -rf "$d"/* plugins/; done && \
-    for f in etc/plugins/*.zip; do [ -f "$f" ] && unzip -q -o "$f" -d plugins/; done
+    for f in etc/plugins/*.zip; do [ -f "$f" ] && unzip -q -o "$f" -d plugins/; done && \
+    sed -i 's/$allowed = \[\];/$allowed = \[\];\n            $aOrderedComponents = \[\];/g' lib/max/Admin/Invocation.php
 
 # Stage 2: Production image
 FROM alpine:3.19
