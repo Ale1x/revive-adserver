@@ -101,6 +101,7 @@ COPY docker/supervisor.d/schedule.conf /etc/supervisor/conf.d/schedule.conf
 
 # Copy scripts
 COPY docker/scripts/ /usr/local/bin/
+RUN php -l /usr/local/bin/repair-plugins.php && php -l /usr/local/bin/healthcheck.php
 RUN chmod +x /usr/local/bin/entrypoint && \
     chmod +x /usr/local/bin/start && \
     chmod +x /usr/local/bin/schedule
