@@ -92,3 +92,15 @@ foreach (glob(MAX_PATH . '/etc/plugins/*.zip') as $archive) {
     }
     echo $enable ? "REPAIRED $name\n" : "REPAIRED $name (disabled: GeoIP is unconfigured)\n";
 }
+// The upstream unpack/config writers create permissive temporary directories
+// and configuration files. Restore state permissions after maintenance, too.
+$state = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator(MAX_PATH . '/var', FilesystemIterator::SKIP_DOTS),
+    RecursiveIteratorIterator::SELF_FIRST,
+);
+foreach ($state as $entry) {
+    if (!$entry->isLink()) {
+        chmod($entry->getPathname(), $entry->isDir() ? 02770 : 0660);
+    }
+}
+chmod(MAX_PATH . '/var', 02770);
