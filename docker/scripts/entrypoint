@@ -12,10 +12,10 @@ log "Starting Revive Adserver entrypoint..."
 chown -R nginx:www-data /var/www/html
 
 # Ensure proper permissions for Revive directories
-chmod -R 755 /var/www/html
-chmod -R 777 /var/www/html/var
-chmod -R 777 /var/www/html/www/images
-chmod -R 777 /var/www/html/www/delivery
+find /var/www/html/var -type d -exec chmod 2770 {} +
+find /var/www/html/var -type f -exec chmod 660 {} +
+find /var/www/html/www/images -type d -exec chmod 2755 {} +
+find /var/www/html/www/images -type f -exec chmod 644 {} +
 
 # Create required directories if they don't exist
 mkdir -p /var/www/html/var/cache
