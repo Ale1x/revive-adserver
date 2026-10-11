@@ -20,6 +20,17 @@ foreach (glob(MAX_PATH . '/etc/plugins/*.zip') as $archive) {
     $name = basename($archive, '.zip');
     $manager = new OX_PluginManager();
     $file = ['tmp_name' => $archive, 'name' => basename($archive)];
+    $geo = $GLOBALS['_MAX']['CONF']['rvMaxMindGeoIP2'] ?? [];
+    $enable = !($name === 'reviveMaxMindGeoIP2' &&
+        empty($geo['mmdb_paths']) &&
+        (empty($geo['account_id']) || empty($geo['license_key'])));
+    // GeoIP onEnable performs a network download without a timeout. When no
+    // database or download credentials are configured, keep it disabled before
+    // upgrade as well: upgradePackage re-enables an already enabled package.
+    if (!$enable && !$manager->disablePackage($name, true)) {
+        fwrite(STDERR, "Cannot disable unconfigured GeoIP package\n");
+        exit(1);
+    }
     if (!$manager->_parsePackage($name) ||
         !$manager->_parseComponentGroups($manager->aParse['package']['install']['contents'])) {
         fwrite(STDERR, "Cannot parse bundled package $name\n");
@@ -75,9 +86,9 @@ foreach (glob(MAX_PATH . '/etc/plugins/*.zip') as $archive) {
     // missing groups. Equal package versions must be allowed when restoring
     // lost configuration on an already upgraded core database.
     if (!$manager->upgradePackage($file, $name, true) ||
-        !$manager->enablePackage($name, true)) {
+        ($enable && !$manager->enablePackage($name, true))) {
         fwrite(STDERR, 'FAILED ' . $name . ': ' . json_encode($manager->aErrors) . "\n");
         exit(1);
     }
-    echo "REPAIRED $name\n";
+    echo $enable ? "REPAIRED $name\n" : "REPAIRED $name (disabled: GeoIP is unconfigured)\n";
 }
