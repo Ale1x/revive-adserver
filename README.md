@@ -51,3 +51,19 @@ Este é um setup Docker otimizado para executar o **Revive Adserver v5.5.x** com
 ## 📄 Licença
 
 Este setup Docker é fornecido sob a mesma licença do Revive Adserver.
+# Recovering lost plugin configuration on PostgreSQL
+
+Back up the database and persistent `var/` and `www/images/` directories first.
+Test on an isolated copy of the database. Run the explicit recovery command as
+the application user, passing the configured hostname and expected database:
+
+```sh
+php /usr/local/bin/repair-plugins.php revive.example.com revive
+php /usr/local/bin/healthcheck.php revive.example.com revive
+```
+
+Recovery uses Revive's plugin upgrade/enable APIs, restores missing settings
+from bundled defaults and recreates only wholly absent plugin schemas. It stops
+on partially missing schemas and preserves existing settings and tables. It is
+not invoked automatically at startup. It cannot recover lost creative files.
+

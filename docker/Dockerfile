@@ -2,7 +2,7 @@
 # Stage 1: Download and prepare Revive Adserver
 FROM alpine:3.19 AS downloader
 
-ARG REVIVE_VERSION=6.0.8
+ARG REVIVE_VERSION=6.0.6
 
 RUN apk add --no-cache \
     wget tar unzip \
@@ -19,11 +19,14 @@ RUN ln -sf /usr/bin/php81 /usr/bin/php && \
     chmod +x /usr/local/bin/composer && \
     composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# Unpack default plugin packages into plugins directory and patch Invocation.php for PHP 8.1
+# Packages contain paths relative to the application root (plugins/ and www/).
+# Extracting into plugins/ creates plugins/plugins and hides the components.
 RUN mkdir -p plugins && \
-    for d in plugins_repo/*/plugins; do [ -d "$d" ] && cp -rf "$d"/* plugins/; done && \
-    for f in etc/plugins/*.zip; do [ -f "$f" ] && unzip -q -o "$f" -d plugins/; done && \
-    sed -i 's/$allowed = \[\];/$allowed = \[\];\n            $aOrderedComponents = \[\];/g' lib/max/Admin/Invocation.php
+    for f in etc/plugins/*.zip; do [ -f "$f" ] && unzip -q -o "$f" -d .; done && \
+    test -f plugins/bannerTypeHtml/oxHtml/genericHtml.delivery.php && \
+    test -d plugins/invocationTags/oxInvocationTags && \
+    test -d www/admin/plugins && \
+    test ! -d plugins/plugins
 
 # Stage 2: Production image
 FROM alpine:3.19
@@ -98,6 +101,7 @@ COPY docker/supervisor.d/schedule.conf /etc/supervisor/conf.d/schedule.conf
 
 # Copy scripts
 COPY docker/scripts/ /usr/local/bin/
+RUN php -l /usr/local/bin/repair-plugins.php && php -l /usr/local/bin/healthcheck.php
 RUN chmod +x /usr/local/bin/entrypoint && \
     chmod +x /usr/local/bin/start && \
     chmod +x /usr/local/bin/schedule
@@ -121,10 +125,10 @@ RUN mkdir -p /var/cache/nginx \
 # Set proper permissions
 RUN chown -R nginx:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
-    && chmod -R 777 /var/www/html/var \
-    && chmod -R 777 /var/www/html/plugins \
-    && chmod -R 777 /var/www/html/www/images \
-    && chmod -R 777 /var/www/html/www/delivery \
+    && find /var/www/html/var -type d -exec chmod 2770 {} + \
+    && find /var/www/html/var -type f -exec chmod 660 {} + \
+    && find /var/www/html/www/images -type d -exec chmod 2755 {} + \
+    && find /var/www/html/www/images -type f -exec chmod 644 {} + \
     && chown -R nginx:www-data /var/cache/nginx \
     && chown -R nginx:www-data /run/nginx
 
